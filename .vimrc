@@ -7,6 +7,7 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'tpope/vim-fugitive'
+Plug 'mileszs/ack.vim'
 call plug#end()
 
 set expandtab
@@ -28,13 +29,21 @@ nnoremap <leader>v :vsp<CR>
 nnoremap <leader>V :sp<CR>
 
 " Move between splits
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
 
 " Open nerdtree
 nnoremap <C-n> :NERDTree<CR>
 
 " Open terminal
 nnoremap <leader>t :ter<CR>
+
+" Set syntax highlighting in build files
+au BufReadPost *.build_defs set syntax=python
+au BufReadPost *BUILD set syntax=python
+
+" Configure ack
+let g:ackprg = 'ag --nogroup --nocolor --column --ignore-dir ChangeLog --ignore-dir docs'
+nnoremap <leader><leader> :Ack!<Space>
