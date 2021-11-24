@@ -23,6 +23,10 @@ nnoremap <leader>q :q<CR>
 nnoremap <leader>sv :so ~/.vimrc <CR>
 nnoremap <leader>ev :e ~/vimrc/.vimrc <CR>
 
+" Split
+nnoremap <leader>v :vsp<CR>
+nnoremap <leader>V :sp<CR>
+
 " Move between splits
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
