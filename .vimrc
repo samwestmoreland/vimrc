@@ -10,6 +10,7 @@ Plug 'tpope/vim-fugitive'
 call plug#end()
 
 set expandtab
+set incsearch
 
 let mapleader = ","
 
@@ -20,7 +21,7 @@ nnoremap <leader>q :q<CR>
 
 " Edit this file
 nnoremap <leader>sv :so ~/.vimrc <CR>
-nnoremap <leader>ev :e ~/.vimrc <CR>
+nnoremap <leader>ev :e ~/vimrc/.vimrc <CR>
 
 " Move between splits
 nnoremap <C-h> <C-w>h
