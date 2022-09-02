@@ -4,6 +4,7 @@ Plug 'fatih/vim-go', { 'tag': 'v1.26', 'do': ':GoUpdateBinaries' }
 Plug 'preservim/nerdtree'
 Plug 'github/copilot.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'nvim-lualine/lualine.nvim'
 " If you want to have icons in your statusline choose one of these
 " Plug 'kyazdani42/nvim-web-devicons'
@@ -11,6 +12,7 @@ Plug 'neoclide/coc.nvim'
 Plug 'tpope/vim-fugitive'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'airblade/vim-gitgutter'
+Plug 'wellle/context.vim'
 call plug#end()
 
 set expandtab
@@ -46,6 +48,9 @@ nnoremap <leader>cr :GoReferrers<CR>
 nnoremap <leader>ev :e ~/.config/nvim/init.vim <CR>
 nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 
+" This is an fzf.vim command to search open buffers
+nnoremap <leader>b :Buffers<CR>
+
 nnoremap <leader>g :Git 
 
 " Redo
@@ -72,7 +77,7 @@ set number
 set scrolloff=30
 
 let g:ackprg = 'ag --nogroup --nocolor --column'
-nnoremap <leader><leader> :Ack!<Space>
+nnoremap <leader><leader> :Rg<space>
 
 " Exit terminal mode
 tnoremap <leader><leader> <C-\><C-n>
