@@ -8,7 +8,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'nvim-lualine/lualine.nvim'
 " If you want to have icons in your statusline choose one of these
 " Plug 'kyazdani42/nvim-web-devicons'
-Plug 'neoclide/coc.nvim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'tpope/vim-fugitive'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'airblade/vim-gitgutter'
@@ -94,7 +94,7 @@ tnoremap <C-w><C-l> <C-\><C-N><C-w>l
 
 " vim-go options
 let g:go_bin_path = ''
-let g:go_fmt_autosave = 0
+let g:go_fmt_autosave = 1
 let g:go_fmt_command = 'gofmt'
 let g:go_fmt_options = '-s'
 let g:go_imports_autosave = 0
