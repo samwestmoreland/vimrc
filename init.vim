@@ -26,7 +26,7 @@ let mapleader = ','
 
 inoremap kj <ESC>
 nnoremap <leader>w :w<CR>
-nnoremap <leader>q :q<CR>
+nnoremap <leader>q :call Quit()<CR>
 nnoremap <leader>x :x<CR>
 
 " Split navigation
@@ -180,3 +180,12 @@ endfunction
 au FileType go silent exe "GoGuruScope " . s:go_guru_scope_from_git_root()
 
 autocmd FileType .vim, .py, .go, .build_defs EnableStripWhitespaceOnSave
+
+function! Quit()
+    " if buffer is vimrc, wipe buffer
+    if expand('%') == '~/.config/nvim/init.vim'
+        execute 'bwipeout'
+    else
+        execute 'quit'
+    endif
+endfunction
