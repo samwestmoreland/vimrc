@@ -66,8 +66,23 @@ au BufRead,BufNewFile *.build_defs set filetype=python
 au BufRead,BufNewFile *.BUILD set filetype=python
 au BufRead,BufNewFile *.BUILD_FILE set filetype=python
 
-" Open vim terminal
-nnoremap <leader>t :terminal<CR>
+" Open terminal
+nnoremap <leader>t :call OpenTerminalInSplit()<CR>
+
+" If terminal exists, open it in a new split
+function! OpenTerminalInSplit()
+    if TerminalExists()
+        execute "botright vsplit | b term"
+    else
+        execute "botright vsplit | terminal"
+    endif
+endfunction
+
+" Check if there is an open terminal buffer
+function! TerminalExists()
+    let l:term = filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&buftype") ==# "terminal"')
+    return !empty(l:term)
+endfunction
 
 " Toggle off highlighting
 nnoremap <silent> <Space> :nohlsearch<Bar>:echo<CR>
