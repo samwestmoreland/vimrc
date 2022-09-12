@@ -51,7 +51,43 @@ nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 " This is an fzf.vim command to search open buffers
 nnoremap <leader>b :Buffers<CR>
 
+" Go to build file
+nnoremap gb :call GoToBuildFile()<CR>
+
 nnoremap <leader>g :Git 
+nnoremap <leader>gp :Git pull<CR>
+nnoremap <leader>gr :Git rebase master<CR>
+nnoremap <leader>gc :Git checkout 
+nnoremap <leader>gm :Git checkout master<CR>
+
+" GoTo code navigation.
+nmap <silent> gd :call GoToDefinition()<CR>
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+function! GoToDefinition()
+    if expand('%:t') == 'BUILD'
+        let l:cmd = 'rg -n "def ' . expand('<cword>') . '"'
+        let l:output = system(l:cmd)
+        " if we found something
+        if len(l:output) > 0
+            " split the output into lines
+            let l:lines = split(l:output, '\n')
+            let l:line = l:lines[0]
+            let l:parts = split(l:line, ':')
+            let l:file = l:parts[0]
+            let l:line = l:parts[1]
+            execute 'e ' . l:file
+            execute l:line
+        else
+            echo 'No definition found'
+        endif
+    else
+        " otherwise, execute coc go to definition
+        call CocAction('jumpDefinition')
+    endif
+endfunction
 
 " Redo
 nnoremap U :redo<CR>
@@ -188,4 +224,52 @@ function! Quit()
     else
         execute 'quit'
     endif
+endfunction
+
+function! GoToBuildFile()
+    " match regex on current line
+    let l:line = getline('.')
+    let l:match = matchlist(l:line, '\/\/[A-z0-9\/_]\+:[A-z0-9_#]\+')
+    if len(l:match) > 0
+        let l:build_file = substitute(l:match[0], '//', '', '')
+        " get the target name
+        let l:target = substitute(l:build_file, '.*:', '', '')
+        let l:target = StripTagFromInternalTarget(l:target)
+        let l:build_file = substitute(l:build_file, ':.*', '/BUILD', '')
+        " find line number of target in build file
+        let l:line_number = system('grep -n name.\*' . l:target . ' ' . l:build_file . ' | cut -d: -f1')
+        execute 'edit ' . l:build_file
+        " if line number is not empty, go to line number
+        if len(l:line_number) > 0
+            echo 'found target on line ' . l:line_number
+            " strip newline from line number
+            let l:line_number = substitute(l:line_number, '\n', '', '')
+            execute 'normal ' . l:line_number . 'G'
+        else
+            echo 'Could not find target in build file'
+        endif
+    else
+        echo 'No build label found'
+    endif
+endfunction
+
+" Check if build label is internal target
+function! IsInternalTarget(target)
+    " If target begins with underscore and contains a hash
+    if match(a:target, '^_.*#') > -1
+        return 1
+    endif
+    return 0
+endfunction
+
+" Strip tag from internal target
+function! StripTagFromInternalTarget(target)
+    " If target begins with underscore and contains a hash
+    if IsInternalTarget(a:target)
+        " Strip tag from target
+        let l:target = substitute(a:target, '_', '', '')
+        let l:target = substitute(l:target, '#.*', '', '')
+        return l:target
+    endif
+    return a:target
 endfunction
