@@ -52,7 +52,7 @@ nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 nnoremap <leader>b :Buffers<CR>
 
 " Go to build file
-nnoremap gb :call GoToBuildFile()<CR>
+nnoremap gb :call GoToBuildFile('')<CR>
 
 nnoremap <leader>g :Git 
 nnoremap <leader>gp :Git pull<CR>
@@ -226,9 +226,14 @@ function! Quit()
     endif
 endfunction
 
-function! GoToBuildFile()
+function! GoToBuildFile(build_label)
+    let l:line = ''
+    if a:build_label is ''
+        let l:line = getline('.')
+    else
+        let l:line = a:build_label
+    endif
     " match regex on current line
-    let l:line = getline('.')
     let l:match = matchlist(l:line, '\/\/[A-z0-9\/_]\+:[A-z0-9_#]\+')
     if len(l:match) > 0
         let l:build_file = substitute(l:match[0], '//', '', '')
@@ -237,7 +242,7 @@ function! GoToBuildFile()
         let l:target = StripTagFromInternalTarget(l:target)
         let l:build_file = substitute(l:build_file, ':.*', '/BUILD', '')
         " find line number of target in build file
-        let l:line_number = system('grep -n name.\*' . l:target . ' ' . l:build_file . ' | cut -d: -f1')
+        let l:line_number = system('grep -n name.\*' . l:target . ' ' . l:build_file . ' | cut -d: -f1 | head -n1')
         execute 'edit ' . l:build_file
         " if line number is not empty, go to line number
         if len(l:line_number) > 0
@@ -249,7 +254,14 @@ function! GoToBuildFile()
             echo 'Could not find target in build file'
         endif
     else
+        " check for build labels of the form //foo/bar
+        let l:match = matchlist(l:line, '\/\/[A-z0-9\/_]\+')
+        if len(l:match) > 0
+            " get the last part of the build label
+            let l:target = substitute(l:match[0], '.*\/', '', '')
+            return GoToBuildFile(l:match[0] . ':' . l:target)
         echo 'No build label found'
+        endif
     endif
 endfunction
 
