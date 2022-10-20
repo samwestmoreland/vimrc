@@ -259,8 +259,6 @@ function! GoToBuildFile(build_label)
         if len(l:match) > 0
             " get the last part of the build label
             let l:target = substitute(l:match[0], '.*\/', '', '')
-            echo 'got target ' . l:target
-            echo 'calling GoToBuildFile with ' . l:match[0] . ':' . l:target
             return GoToBuildFile(l:match[0] . ':' . l:target)
         echo 'No build label found'
         endif
