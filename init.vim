@@ -103,14 +103,31 @@ au BufRead,BufNewFile *.BUILD set filetype=python
 au BufRead,BufNewFile *.BUILD_FILE set filetype=python
 
 " Open terminal
-nnoremap <leader>t :call OpenTerminalInSplit()<CR>
+nnoremap <leader>t :call OpenTerminalInSplit('vertical')<CR>
+nnoremap <leader>T :call OpenTerminalInSplit('horizontal')<CR>
 
 " If terminal exists, open it in a new split
-function! OpenTerminalInSplit()
+function! OpenTerminalInSplit(orientation)
     if TerminalExists()
-        execute "botright vsplit | b term"
+        if a:orientation == 'vertical'
+            execute "botright vsplit | b term"
+            set nonumber
+        elseif a:orientation == 'horizontal'
+            execute "botright split | b term"
+            set nonumber
+        else
+            echo "Invalid orientation"
+        endif
     else
-        execute "botright vsplit | terminal"
+        if a:orientation == 'vertical'
+            execute "botright vsplit | term"
+            set nonumber
+        elseif a:orientation == 'horizontal'
+            execute "botright split | term"
+            set nonumber
+        else
+            echo "Invalid orientation"
+        endif
     endif
 endfunction
 
