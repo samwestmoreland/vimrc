@@ -60,6 +60,18 @@ nnoremap <leader>gr :Git rebase master<CR>
 nnoremap <leader>gc :Git checkout 
 nnoremap <leader>gm :Git checkout master<CR>
 
+" Copy the name of the current file to the clipboard
+nnoremap <C-g> :call GetFilename()<CR>
+
+function! GetFilename()
+    let l:filename = expand('%')
+    " if path ends in BUILD, strip BUILD from path
+    if l:filename =~ 'BUILD$'
+        let l:filename = substitute(l:filename, '/BUILD$', '', '')
+    endif
+    let @" = l:filename
+endfunction
+
 " GoTo code navigation.
 nmap <silent> gd :call GoToDefinition()<CR>
 nmap <silent> gy <Plug>(coc-type-definition)
