@@ -78,9 +78,11 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
 function! GoToDefinition()
-    if expand('%:t') == 'BUILD'
-        let l:cmd = 'rg -n "def ' . expand('<cword>') . '"'
+    if expand('%:t') == 'BUILD' || expand('%:t') == 'build_defs' || expand('%:t') == 'build_def'
+        let l:cmd = 'rg -n "def ' . expand('<cword>') . '" -g "*\.build*"'
         let l:output = system(l:cmd)
         " if we found something
         if len(l:output) > 0
@@ -93,7 +95,7 @@ function! GoToDefinition()
             execute 'e ' . l:file
             execute l:line
         else
-            echo 'No definition found'
+            call CocAction('jumpDefinition')
         endif
     else
         " otherwise, execute coc go to definition
@@ -111,6 +113,7 @@ nnoremap <C-n> :NERDTreeFind<CR>
 nnoremap <C-p> :FZF<CR>
 
 au BufRead,BufNewFile *.build_defs set filetype=python
+au BufRead,BufNewFile *.build_def set filetype=python
 au BufRead,BufNewFile *.BUILD set filetype=python
 au BufRead,BufNewFile *.BUILD_FILE set filetype=python
 
@@ -171,6 +174,7 @@ tnoremap <C-w><C-h> <C-\><C-N><C-w>h
 tnoremap <C-w><C-j> <C-\><C-N><C-w>j
 tnoremap <C-w><C-k> <C-\><C-N><C-w>k
 tnoremap <C-w><C-l> <C-\><C-N><C-w>l
+tnoremap <C-w>= <C-\><C-N><C-w>=a
 
 " vim-go options
 let g:go_bin_path = ''
@@ -248,9 +252,13 @@ autocmd FileType .vim, .py, .go, .build_defs EnableStripWhitespaceOnSave
 
 function! Quit()
     " if buffer is vimrc, wipe buffer
-    if expand('%') == '~/.config/nvim/init.vim'
+    let l:home = expand('$HOME')
+
+    if expand('%') == l:home . '/.config/nvim/init.vim'
+        echo 'Wiping vimrc buffer'
         execute 'bwipeout'
     else
+        echo 'Did not wipe vimrc buffer because this file is: ' . expand('%')
         execute 'quit'
     endif
 endfunction
@@ -275,7 +283,6 @@ function! GoToBuildFile(build_label)
         execute 'edit ' . l:build_file
         " if line number is not empty, go to line number
         if len(l:line_number) > 0
-            echo 'found target on line ' . l:line_number
             " strip newline from line number
             let l:line_number = substitute(l:line_number, '\n', '', '')
             execute 'normal ' . l:line_number . 'G'
