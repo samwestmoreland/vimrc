@@ -26,14 +26,9 @@ let mapleader = ','
 
 inoremap kj <ESC>
 nnoremap <leader>w :w<CR>
-nnoremap <leader>q :call Quit()<CR>
+" call quit and source the vimrc
+nnoremap <leader>q :call Quit()<CR> :source $MYVIMRC<CR>
 nnoremap <leader>x :x<CR>
-
-" Split navigation
-nnoremap <C-j> <C-w><C-j>
-nnoremap <C-k> <C-w><C-k>
-nnoremap <C-l> <C-w><C-l>
-nnoremap <C-h> <C-w><C-h>
 
 nnoremap <leader>v :vsp<CR>
 nnoremap <leader>V :sp<CR>
@@ -48,17 +43,27 @@ nnoremap <leader>cr :GoReferrers<CR>
 nnoremap <leader>ev :e ~/.config/nvim/init.vim <CR>
 nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 
+nnoremap <leader>d :call QueryRevDeps()<CR>
+
+nnoremap <leader>ce :Copilot enable<CR> :echo<CR>
+nnoremap <leader>cd :Copilot disable<CR> :echo<CR>
+
+nnoremap <leader>a :Silent arc lint %<CR>
+
 " This is an fzf.vim command to search open buffers
 nnoremap <leader>b :Buffers<CR>
+
+" Build the target under the cursor
+nnoremap B :call Build('')<CR>
 
 " Go to build file
 nnoremap gb :call GoToBuildFile('')<CR>
 
+" Get build label under cursor
+nnoremap gl :call GetBuildLabelUnderCursor()<CR>
+
 nnoremap <leader>g :Git 
-nnoremap <leader>gp :Git pull<CR>
-nnoremap <leader>gr :Git rebase master<CR>
-nnoremap <leader>gc :Git checkout 
-nnoremap <leader>gm :Git checkout master<CR>
+nnoremap <leader>do :GitGutterDiffOrig<CR>
 
 " Copy the name of the current file to the clipboard
 nnoremap <C-g> :call GetFilename()<CR>
@@ -80,12 +85,28 @@ nmap <silent> gr <Plug>(coc-references)
 
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
+function! GetPleaseRepoRoot()
+    " walk up file tree from current directory until we find a .plzconfig
+    " file. If we don't find one, return empty string.
+    let l:dir = getcwd()
+    while l:dir != '/'
+        if filereadable(l:dir . '/.plzconfig')
+            return l:dir
+        endif
+        let l:dir = fnamemodify(l:dir, ':h')
+    endwhile
+    return ''
+endfunction
+
 function! GoToDefinition()
-    if expand('%:t') == 'BUILD' || expand('%:t') == 'build_defs' || expand('%:t') == 'build_def'
-        let l:cmd = 'rg -n "def ' . expand('<cword>') . '" -g "*\.build*"'
+    if expand('%:t') == 'BUILD' || expand('%:e') == 'build_defs' || expand('%:e') == 'build_def'
+        let l:cmd = 'rg -n "def ' . expand('<cword>') . '\(" -g "*\.build*"'
         let l:output = system(l:cmd)
         " if we found something
         if len(l:output) > 0
+            if len(l:output) > 1
+                echo "Found more than one definition, using the first one"
+            endif
             " split the output into lines
             let l:lines = split(l:output, '\n')
             let l:line = l:lines[0]
@@ -99,7 +120,216 @@ function! GoToDefinition()
         endif
     else
         " otherwise, execute coc go to definition
+        echo "we're not in a BUILD or build_def file"
         call CocAction('jumpDefinition')
+    endif
+endfunction
+
+function! GetBuildLabelUnderCursor()
+    " Search backwards from the cursor col + 1 for the double slash that marks the
+    " beginning of the build label.
+    let l:line = getline('.')
+    let l:startcol = col('.') + 2
+    let l:slashpos = searchpos('//', 'b', l:line[0:l:startcol])
+    echo l:slashpos
+    if l:slashpos[1] == 0
+        echo 'No build label found'
+        return ''
+    endif
+
+    " We need to match the following:
+    " "//path/to:target"
+    " "//path/to:target#rule"
+    " "//path/to/to:target#rule"
+    " "//path/to/to:_target#rule"
+    "
+    " But not:
+    " "//common/go/fbender/utils/tests/proto:all failed:"
+    " "//build/defs/third_party:all)"
+    " i.e. make sure we don't match spaces or brackets
+    let l:pattern = '\v//[^ ]+:[^ )]+'
+    let l:match = matchstr(l:line, l:pattern, l:slashpos[1]-1)
+    if l:match == ''
+        echo 'No build label found'
+        return ''
+    endif
+
+    " strip any trailing colons
+    let l:match = substitute(l:match, ':$', '', '')
+    echo 'Found build label: ' . l:match
+    let @" = l:match
+    return l:match
+endfunction
+
+function! Build(label)
+    let l:root = GetPleaseRepoRoot()
+    if l:root == ''
+        echo 'Not in a Please repo'
+        return
+    endif
+    let l:label = a:label
+    if l:label == ''
+        let l:label = GetBuildLabelUnderCursor()
+    endif
+    if l:label == ''
+        " execute a plz command here
+        echo 'executing plz query whatinputs on this file'
+        let l:cmd = 'plz query whatinputs ' . expand('%:p')
+        let l:output = system(l:cmd)
+        echo 'got result: ' . l:output
+        if l:output != ''
+            let l:label = l:output
+        endif
+    endif
+    if l:label == ''
+        return
+    endif
+    let l:cmd = 'plz build ' . l:label
+    echo 'Executing: ' . l:cmd
+
+    " switch to the terminal buffer
+    call OpenTerminalInSplit('vertical')
+
+    " go into insert mode
+    call feedkeys("i", "n")
+
+    " clear any existing text
+    call feedkeys("\<C-u>", "n")
+
+    " send the command to the terminal
+    call feedkeys(l:cmd, "n")
+endfunction
+
+" If the cursor is over a build target in a BUILD file,
+" return the target fields in a dictionary. Otherwise,
+" return 0.
+function! GetBuildTarget()
+    " Check we're in a build file
+    if expand('%:t') != 'BUILD'
+        return {}
+    endif
+
+    let l:start = '^[a-zA-Z0-9_\-]*($'
+    let l:end = '^)$'
+    let l:field = '^ *[a-zA-Z_]* = .*,$'
+
+    " Dictionary to store the build target attributes
+    let l:build_target_fields = {}
+
+    " search up from current line for a line that matches start regex
+
+    " the line number we're starting our search on
+    let l:startingline = line('.')
+
+    let l:line = l:startingline
+    while l:line > 0
+        let l:line_text = getline(l:line)
+
+        if l:line_text =~ '^ *$'
+            return {}
+        endif
+
+        if l:line_text =~ l:start
+            let l:build_target_fields['type'] = substitute(l:line_text, '(', '', '')
+            break
+        elseif l:line_text =~ l:end && l:line != l:startingline
+            return {}
+        elseif l:line_text =~ l:field
+            let l:parts = split(l:line_text, '=')
+            if len(l:parts) == 2
+                let l:parts[0] = substitute(l:parts[0], ' ', '', 'g')
+                let l:parts[1] = substitute(l:parts[1], ' ', '', 'g')
+                let l:build_target_fields[l:parts[0]] = l:parts[1]
+            endif
+        endif
+
+        let l:line = l:line - 1
+
+        if l:line == 0
+            return {}
+        endif
+    endwhile
+
+    " search down from current line for a line that matches end regex
+    let l:line = l:startingline
+    while l:line < line('$') + 1
+        let l:line_text = getline(l:line)
+
+        if l:line_text =~ '^ *$'
+            return {}
+        endif
+
+        if l:line_text =~ l:end
+            " Construct the build label and add it to the dictionary
+            echo "got the current filename as " . GetFilename()
+            let l:label = GetFilename() . ':' . l:build_target_fields['name']
+            let l:build_target_fields['label'] = l:label
+            return l:build_target_fields
+        elseif l:line_text =~ l:start
+            return {}
+        elseif l:line_text =~ l:field
+            let l:parts = split(l:line_text, '=')
+            if len(l:parts) == 2
+                let l:parts[0] = substitute(l:parts[0], ' ', '', 'g')
+                let l:parts[1] = substitute(l:parts[1], ' ', '', 'g')
+                let l:build_target_fields[l:parts[0]] = l:parts[1]
+            endif
+        endif
+
+        let l:line = l:line + 1
+
+        if l:line > line('$')
+            return {}
+        endif
+    endwhile
+
+    return {}
+endfunction
+
+" For debugging
+function! PrintResult()
+    let l:build_target_fields = GetBuildTarget()
+    echo l:build_target_fields
+endfunction
+
+function! QueryRevDeps()
+    echo 'Querying reverse dependencies...'
+    if expand('%:t') != 'BUILD'
+        echo 'Not in a BUILD file'
+        return
+    endif
+
+    let l:build_target_fields = GetBuildTarget()
+    if l:build_target_fields == {}
+        echo 'Not on a build target'
+        return
+    endif
+
+    " get the string between the quotes
+    let l:target = substitute(l:build_target_fields['name'], '"', '', 'g')
+    let l:target = substitute(l:target, ',$', '', '')
+
+    if l:target == ''
+        echo 'No target name found'
+        return
+    endif
+
+    " construct build label from target
+    " get path from repo root to current file
+    let l:path = expand('%:p:h')
+    let l:repo_root = GetPleaseRepoRoot()
+    let l:label = substitute(l:path, l:repo_root, '', '')
+    let l:label = '/' . l:label . ':' . l:target
+
+    " query for reverse dependencies
+    let l:cmd = 'plz query revdeps ' . l:label
+    let l:output = system(l:cmd)
+
+    " print output if it is not empty
+    if len(l:output) > 0
+        echo l:output
+    else
+        echo "No reverse dependencies found"
     endif
 endfunction
 
@@ -107,7 +337,18 @@ endfunction
 nnoremap U :redo<CR>
 
 " Nerdtree mappings
-nnoremap <C-n> :NERDTreeFind<CR>
+nnoremap <C-n> :call NerdTreeOpen()<CR>
+
+function! NerdTreeOpen()
+    " if there is a file open in the current buffer
+    if expand('%') != ''
+        " open the file in the current buffer in the nerdtree
+        execute 'NERDTreeFind'
+    else
+        " otherwise, open the current directory in the nerdtree
+        execute 'NERDTree'
+    endif
+endfunction
 
 " CtrlP
 nnoremap <C-p> :FZF<CR>
@@ -124,9 +365,17 @@ nnoremap <leader>T :call OpenTerminalInSplit('horizontal')<CR>
 " If terminal exists, open it in a new split
 function! OpenTerminalInSplit(orientation)
     if TerminalExists()
-        if a:orientation == 'vertical'
+        " if terminal buffer is already open in a window, move the cursor to that window
+        if TerminalBufferIsOpen()
+            " get the window number of the terminal buffer
+            let l:terminal_window = GetTerminalWindow()
+            " move the cursor to the terminal window
+            execute l:terminal_window . 'wincmd w'
+            execute "normal! a"
+        elseif a:orientation == 'vertical'
             execute "botright vsplit | b term"
             set nonumber
+            execute "normal! a"
         elseif a:orientation == 'horizontal'
             execute "botright split | b term"
             set nonumber
@@ -137,6 +386,9 @@ function! OpenTerminalInSplit(orientation)
         if a:orientation == 'vertical'
             execute "botright vsplit | term"
             set nonumber
+            :ToggleWhitespace
+            :ToggleWhitespace
+            execute "normal! a"
         elseif a:orientation == 'horizontal'
             execute "botright split | term"
             set nonumber
@@ -145,6 +397,23 @@ function! OpenTerminalInSplit(orientation)
         endif
     endif
 endfunction
+
+function! GetTerminalWindow()
+    " get the window number of the terminal buffer
+    let l:terminal_window = bufwinnr('term')
+    return l:terminal_window
+endfunction
+
+function! TerminalBufferIsOpen()
+    let l:terminal_buffer_number = bufnr('^term://')
+    " check if that buffer number is currently open in a window
+    if bufwinnr(l:terminal_buffer_number) != -1
+        return 1
+    else
+        return 0
+    endif
+endfunction
+
 
 " Check if there is an open terminal buffer
 function! TerminalExists()
@@ -255,10 +524,14 @@ function! Quit()
     let l:home = expand('$HOME')
 
     if expand('%') == l:home . '/.config/nvim/init.vim'
-        echo 'Wiping vimrc buffer'
-        execute 'bwipeout'
+        " get buffer number of current buffer
+        let l:buf = bufnr('%')
+        " replace buffer with alternate buffer
+        execute "b#"
+        " wipe buffer with number l:buf
+        execute "bwipeout " . l:buf
+        echo 'Wiped vimrc buffer'
     else
-        echo 'Did not wipe vimrc buffer because this file is: ' . expand('%')
         execute 'quit'
     endif
 endfunction
@@ -271,7 +544,8 @@ function! GoToBuildFile(build_label)
         let l:line = a:build_label
     endif
     " match regex on current line
-    let l:match = matchlist(l:line, '\/\/[A-z0-9\/_]\+:[A-z0-9_#]\+')
+    let l:match = matchlist(l:line, '\/\/[A-z0-9\/_-]\+:[A-z0-9_#-]\+')
+    echo "got matches:" l:match
     if len(l:match) > 0
         let l:build_file = substitute(l:match[0], '//', '', '')
         " get the target name
@@ -279,7 +553,7 @@ function! GoToBuildFile(build_label)
         let l:target = StripTagFromInternalTarget(l:target)
         let l:build_file = substitute(l:build_file, ':.*', '/BUILD', '')
         " find line number of target in build file
-        let l:line_number = system('grep -n name.\*' . l:target . ' ' . l:build_file . ' | cut -d: -f1 | head -n1')
+        let l:line_number = system('grep -n name.\*"' . l:target . '" ' . l:build_file . ' | cut -d: -f1 | head -n1')
         execute 'edit ' . l:build_file
         " if line number is not empty, go to line number
         if len(l:line_number) > 0
@@ -321,3 +595,5 @@ function! StripTagFromInternalTarget(target)
     endif
     return a:target
 endfunction
+
+command! -nargs=1 Silent execute ':silent !'.<q-args> | redraw!
