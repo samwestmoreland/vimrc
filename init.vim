@@ -545,7 +545,6 @@ function! GoToBuildFile(build_label)
     endif
     " match regex on current line
     let l:match = matchlist(l:line, '\/\/[A-z0-9\/_-]\+:[A-z0-9_#-]\+')
-    echo "got matches:" l:match
     if len(l:match) > 0
         let l:build_file = substitute(l:match[0], '//', '', '')
         " get the target name
@@ -565,12 +564,23 @@ function! GoToBuildFile(build_label)
         endif
     else
         " check for build labels of the form //foo/bar
-        let l:match = matchlist(l:line, '\/\/[A-z0-9\/_]\+')
+        let l:match = matchlist(l:line, '\/\/[A-z0-9\/_-]\+')
         if len(l:match) > 0
             " get the last part of the build label
             let l:target = substitute(l:match[0], '.*\/', '', '')
             return GoToBuildFile(l:match[0] . ':' . l:target)
         echo 'No build label found'
+        else
+            let l:match = matchlist(l:line, ':[A-z0-9\/_-]\+')
+            if len(l:match) > 0
+                let l:path = expand('%:p:h')
+                let l:reporoot = GetPleaseRepoRoot()
+                let l:path = substitute(l:path, l:reporoot, '', '')
+                let l:target = '/' . l:path . l:match[0]
+                return GoToBuildFile(l:target)
+            else
+                echo 'No build label found'
+            endif
         endif
     endif
 endfunction
