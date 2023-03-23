@@ -54,7 +54,13 @@ nnoremap <leader>a :Silent arc lint %<CR>
 nnoremap <leader>b :Buffers<CR>
 
 " Build the target under the cursor
-nnoremap B :call Build('')<CR>
+nnoremap B :call PleaseAction('build', '')<CR>
+
+" Run the target under the cursor
+nnoremap R :call PleaseAction('run', '')<CR>
+
+" Query print the target under the cursor
+nnoremap Q :call PleaseAction('query print', '')<CR>
 
 " Go to build file
 nnoremap gb :call GoToBuildFile('')<CR>
@@ -147,6 +153,7 @@ function! GetBuildLabelUnderCursor()
     " "//common/go/fbender/utils/tests/proto:all failed:"
     " "//build/defs/third_party:all)"
     " i.e. make sure we don't match spaces or brackets
+
     let l:pattern = '\v//[^ ]+:[^ )]+'
     let l:match = matchstr(l:line, l:pattern, l:slashpos[1]-1)
     if l:match == ''
@@ -161,7 +168,7 @@ function! GetBuildLabelUnderCursor()
     return l:match
 endfunction
 
-function! Build(label)
+function! PleaseAction(action, label)
     let l:root = GetPleaseRepoRoot()
     if l:root == ''
         echo 'Not in a Please repo'
@@ -184,7 +191,7 @@ function! Build(label)
     if l:label == ''
         return
     endif
-    let l:cmd = 'plz build ' . l:label
+    let l:cmd = 'plz ' . a:action . ' ' . l:label
     echo 'Executing: ' . l:cmd
 
     " switch to the terminal buffer
