@@ -559,7 +559,7 @@ function! GoToBuildFile(build_label)
         let l:target = StripTagFromInternalTarget(l:target)
         let l:build_file = substitute(l:build_file, ':.*', '/BUILD', '')
         " find line number of target in build file
-        let l:line_number = system('grep -n name.\*"' . l:target . '" ' . l:build_file . ' | cut -d: -f1 | head -n1')
+        let l:line_number = system('grep -n name.\*"' . l:target . '\"" ' . l:build_file . ' | cut -d: -f1 | head -n1')
         execute 'edit ' . l:build_file
         " if line number is not empty, go to line number
         if len(l:line_number) > 0
