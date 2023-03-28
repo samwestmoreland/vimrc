@@ -81,6 +81,7 @@ function! GetFilename()
         let l:filename = substitute(l:filename, '/BUILD$', '', '')
     endif
     let @" = l:filename
+    return l:filename
 endfunction
 
 " GoTo code navigation.
