@@ -438,7 +438,7 @@ set scrolloff=30
 
 let g:ackprg = 'ag --nogroup --nocolor --column'
 nnoremap <leader><leader> :Rg<space>
-vnoremap <leader><leader> :<C-U>execute "Rg" GetVisualSelection()
+vnoremap <leader><leader> :<C-U>execute "Rg" GetVisualSelection()<CR>
 
 function! GetVisualSelection()
     normal gv"xy
