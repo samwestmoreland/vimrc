@@ -437,6 +437,13 @@ set scrolloff=30
 
 let g:ackprg = 'ag --nogroup --nocolor --column'
 nnoremap <leader><leader> :Rg<space>
+vnoremap <leader><leader> :<C-U>execute "Rg" GetVisualSelection()
+
+function! GetVisualSelection()
+    normal gv"xy
+    let l:text = getreg('x')
+    return l:text
+endfunction
 
 " Exit terminal mode
 tnoremap <leader><leader> <C-\><C-n>
