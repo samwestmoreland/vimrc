@@ -439,11 +439,19 @@ set scrolloff=30
 
 let g:ackprg = 'ag --nogroup --nocolor --column'
 nnoremap <leader><leader> :Rg<space>
-vnoremap <leader><leader> :<C-U>execute "Rg" GetVisualSelection()<CR>
+vnoremap <leader><leader> :<C-U>execute "Rg" GetVisualSelectionAndEscape()<CR>
 
-function! GetVisualSelection()
+function! GetVisualSelectionAndEscape()
     normal gv"xy
     let l:text = getreg('x')
+    let l:text = substitute(l:text, '(', '\\(', '')
+    let l:text = substitute(l:text, ')', '\\)', '')
+    let l:text = substitute(l:text, '[', '\\[', '')
+    let l:text = substitute(l:text, ']', '\\]', '')
+    let l:text = substitute(l:text, '{', '\\{', '')
+    let l:text = substitute(l:text, '}', '\\}', '')
+    let l:text = substitute(l:text, '?', '\\?', '')
+    " let l:text = substitute(l:text, '$', '\\\\$', '')
     return l:text
 endfunction
 
