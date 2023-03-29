@@ -19,6 +19,7 @@ set expandtab
 set shiftwidth=4
 set tabstop=4
 set smarttab
+set ignorecase smartcase
 
 set updatetime=100
 
