@@ -1,6 +1,6 @@
 call plug#begin()
 Plug 'mileszs/ack.vim'
-Plug 'fatih/vim-go', { 'tag': 'v1.26', 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'preservim/nerdtree'
 Plug 'github/copilot.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -46,10 +46,17 @@ nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 
 nnoremap <leader>d :call QueryRevDeps()<CR>
 
-nnoremap <leader>ce :Copilot enable<CR> :echo<CR>
-nnoremap <leader>cd :Copilot disable<CR> :echo<CR>
+nnoremap <leader>ce :Copilot enable<CR> :redraw<CR>
+nnoremap <leader>cd :Copilot disable<CR> :redraw<CR>
 
 nnoremap <leader>a :Silent arc lint %<CR>
+
+nnoremap <leader>hd :GitGutterPreviewHunk<CR>
+
+" Also set the colours for the preview window here
+highlight link diffAdded black
+highlight link diffRemoved black
+highlight link diffChanged black
 
 " This is an fzf.vim command to search open buffers
 nnoremap <leader>b :Buffers<CR>
@@ -60,6 +67,9 @@ nnoremap B :call PleaseAction('build', '')<CR>
 " Run the target under the cursor
 nnoremap R :call PleaseAction('run', '')<CR>
 
+" Test the target under the cursor
+nnoremap R :call PleaseAction('test', '')<CR>
+
 " Query print the target under the cursor
 nnoremap Q :call PleaseAction('query print', '')<CR>
 
@@ -69,7 +79,7 @@ nnoremap gb :call GoToBuildFile('')<CR>
 " Get build label under cursor
 nnoremap gl :call GetBuildLabelUnderCursor()<CR>
 
-nnoremap <leader>g :Git 
+nnoremap <leader>g :Git<space>
 nnoremap <leader>do :GitGutterDiffOrig<CR>
 
 " Copy the name of the current file to the clipboard
