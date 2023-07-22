@@ -95,9 +95,6 @@ highlight link diffAdded black
 highlight link diffRemoved black
 highlight link diffChanged black
 
-" This is an fzf.vim command to search open buffers
-nnoremap <leader>b :Buffers<CR>
-
 " Build the target under the cursor
 nnoremap B :call PleaseAction('build', '')<CR>
 
