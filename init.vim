@@ -38,6 +38,8 @@ set updatetime=100
 
 let mapleader = ','
 
+nnoremap <C-LeftMouse> :echom 'Follow hyperlink'<CR>
+
 inoremap kj <ESC>
 nnoremap <leader>w :w<CR>
 " call quit and source the vimrc
