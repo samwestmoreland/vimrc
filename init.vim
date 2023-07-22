@@ -134,6 +134,31 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
+" Configure telescope
+nnoremap <C-P> :Telescope find_files<CR>
+nnoremap <leader><leader> :Telescope live_grep<CR>
+nnoremap K :Telescope grep_string<CR>
+nnoremap <leader>fc :lua telescope_live_grep_under_cursor()<CR>
+nnoremap <leader>b :Telescope buffers<CR>
+nnoremap <leader>fh :Telescope help_tags<CR>
+
+lua << EOF
+require('telescope').setup{
+  defaults = {
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '--hidden',
+    },
+  }
+}
+EOF
+
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! GetPleaseRepoRoot()
