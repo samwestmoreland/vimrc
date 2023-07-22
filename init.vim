@@ -80,7 +80,8 @@ nnoremap <leader>cr :GoReferrers<CR>
 nnoremap <leader>ev :e ~/.config/nvim/init.vim <CR>
 nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 
-nnoremap <leader>d :call QueryRevDeps()<CR>
+nnoremap <leader>dd :windo diffthis<CR>
+nnoremap <leader>do :windo diffoff<CR>
 
 nnoremap <leader>ce :Copilot enable<CR> :redraw<CR>
 nnoremap <leader>cd :Copilot disable<CR> :redraw<CR>
