@@ -30,6 +30,10 @@ set tabstop=4
 set smarttab
 set ignorecase smartcase
 
+set number relativenumber
+
+hi Search cterm=bold ctermfg=white ctermbg=red
+
 set updatetime=100
 
 let mapleader = ','
