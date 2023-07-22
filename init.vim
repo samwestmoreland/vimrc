@@ -22,6 +22,7 @@ Plug 'stevearc/dressing.nvim'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'sharkdp/fd'
+Plug 'ChrisPenner/vim-committed'
 call plug#end()
 
 set expandtab
@@ -45,6 +46,17 @@ nnoremap <leader>w :w<CR>
 " call quit and source the vimrc
 nnoremap <leader>q :call Quit()<CR> :source $MYVIMRC<CR>
 nnoremap <leader>x :x<CR>
+
+" vim-committed
+" Start alerting after 5 minutes without a commit.
+" The threshold doubles each time it occurs
+" So for instance the first notice is at 5 minutes,
+" then 10, then 20, then 40, etc.
+let g:committed_min_time_threshold = 2
+
+" A notification won't be triggered unless at least this many lines
+" have been changed.
+let g:committed_lines_threshold = 15
 
 " please commands
 lua << EOF
