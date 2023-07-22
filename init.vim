@@ -114,7 +114,6 @@ nnoremap gb :call GoToBuildFile('')<CR>
 nnoremap gl :call GetBuildLabelUnderCursor()<CR>
 
 nnoremap <leader>g :Git<space>
-nnoremap <leader>do :GitGutterDiffOrig<CR>
 
 " Copy the name of the current file to the clipboard
 nnoremap <C-g> :call GetFilename()<CR>
