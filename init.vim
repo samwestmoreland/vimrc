@@ -71,8 +71,8 @@ nnoremap <leader>v :vsp<CR>
 nnoremap <leader>V :sp<CR>
 nnoremap <leader>o :only<CR>
 
-nnoremap <leader>n :cn<CR>
-nnoremap <leader>N :cp<CR>
+nnoremap <leader>n :lnext<CR>
+nnoremap <leader>N :lprev<CR>
 
 nnoremap <leader>cc :GoCallers<CR>
 nnoremap <leader>cr :GoReferrers<CR>
