@@ -513,13 +513,7 @@ endfunction
 " Toggle off highlighting
 nnoremap <silent> <Space> :nohlsearch<Bar>:echo<CR>
 
-set norelativenumber
-set number
 set scrolloff=30
-
-let g:ackprg = 'ag --nogroup --nocolor --column'
-nnoremap <leader><leader> :Rg<space>
-vnoremap <leader><leader> :<C-U>execute "Rg" GetVisualSelectionAndEscape()<CR>
 
 function! GetVisualSelectionAndEscape()
     normal gv"xy
@@ -560,6 +554,8 @@ let g:go_auto_type_info = 1
 let g:go_gopls_enabled = 1
 let g:go_null_module_warning = 0
 let g:go_search_bin_path_first = 0
+let g:go_def_mode = 'gopls'
+let g:go_info_mode = 'gopls'
 
 " lualine configuration
 lua << EOF
