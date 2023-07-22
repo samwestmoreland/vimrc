@@ -436,13 +436,10 @@ function! NerdTreeOpen()
     endif
 endfunction
 
-" CtrlP
-nnoremap <C-p> :FZF<CR>
-
-au BufRead,BufNewFile *.build_defs set filetype=python
-au BufRead,BufNewFile *.build_def set filetype=python
-au BufRead,BufNewFile *.BUILD set filetype=python
-au BufRead,BufNewFile *.BUILD_FILE set filetype=python
+" au BufRead,BufNewFile *.build_defs set filetype=python
+" au BufRead,BufNewFile *.build_def set filetype=python
+" au BufRead,BufNewFile *.BUILD set filetype=python
+" au BufRead,BufNewFile *.BUILD_FILE set filetype=python
 
 " Open terminal
 nnoremap <leader>t :call OpenTerminalInSplit('vertical')<CR>
@@ -457,14 +454,18 @@ function! OpenTerminalInSplit(orientation)
             let l:terminal_window = GetTerminalWindow()
             " move the cursor to the terminal window
             execute l:terminal_window . 'wincmd w'
+            set nonumber
+            set nornu
             execute "normal! a"
         elseif a:orientation == 'vertical'
             execute "botright vsplit | b term"
             set nonumber
+            set nornu
             execute "normal! a"
         elseif a:orientation == 'horizontal'
             execute "botright split | b term"
             set nonumber
+            set nornu
         else
             echo "Invalid orientation"
         endif
@@ -472,12 +473,14 @@ function! OpenTerminalInSplit(orientation)
         if a:orientation == 'vertical'
             execute "botright vsplit | term"
             set nonumber
+            set nornu
             :ToggleWhitespace
             :ToggleWhitespace
             execute "normal! a"
         elseif a:orientation == 'horizontal'
             execute "botright split | term"
             set nonumber
+            set nornu
         else
             echo "Invalid orientation"
         endif
