@@ -214,28 +214,37 @@ function! GetBuildLabelUnderCursor()
     endif
 
     " We need to match the following:
-    " "//path/to:target"
-    " "//path/to:target#rule"
-    " "//path/to/to:target#rule"
-    " "//path/to/to:_target#rule"
+    " //path/to:target
+    " //path/to:target#rule
+    " //path/to/to:target#rule
+    " //path/to/to:_target#rule
     "
     " But not:
-    " "//common/go/fbender/utils/tests/proto:all failed:"
-    " "//build/defs/third_party:all)"
-    " i.e. make sure we don't match spaces or brackets
+    " //common/go/fbender/utils/tests/proto:all failed:"
+    " //build/defs/third_party:all)
+    " //build_defs:all",
+    " i.e. make sure we don't match spaces or brackets or quotes or commas
 
-    let l:pattern = '\v//[^ ]+:[^ )]+'
+    let l:pattern = '\v(\/\/([a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+(#[a-zA-Z0-9_-]*)?)'
     let l:match = matchstr(l:line, l:pattern, l:slashpos[1]-1)
-    if l:match == ''
-        echo 'No build label found'
-        return ''
+    if l:match != ''
+        " strip any trailing colons
+        let l:match = substitute(l:match, ':$', '', '')
+        let @" = l:match
+        return l:match
     endif
 
-    " strip any trailing colons
-    let l:match = substitute(l:match, ':$', '', '')
-    echo 'Found build label: ' . l:match
-    let @" = l:match
-    return l:match
+    let l:pattern = '\v(\/\/([a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+)'
+    let l:match = matchstr(l:line, l:pattern, l:slashpos[1]-1)
+    if l:match != ''
+        " strip any trailing colons
+        let l:match = substitute(l:match, ':$', '', '')
+        let @" = l:match
+        return l:match
+    endif
+
+    echo 'No build label found'
+    return ''
 endfunction
 
 function! PleaseAction(action, label)
