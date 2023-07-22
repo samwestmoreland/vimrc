@@ -651,49 +651,30 @@ endfunction
 function! GoToBuildFile(build_label)
     let l:line = ''
     if a:build_label is ''
-        let l:line = getline('.')
+        let l:line = GetBuildLabelUnderCursor()
+        if l:line is ''
+            echo 'no build label under cursor'
+            return
+        endif
     else
         let l:line = a:build_label
     endif
-    " match regex on current line
-    let l:match = matchlist(l:line, '\/\/[A-z0-9\/_-]\+:[A-z0-9_#-]\+')
-    if len(l:match) > 0
-        let l:build_file = substitute(l:match[0], '//', '', '')
-        " get the target name
-        let l:target = substitute(l:build_file, '.*:', '', '')
-        let l:target = StripTagFromInternalTarget(l:target)
-        let l:build_file = substitute(l:build_file, ':.*', '/BUILD', '')
-        " find line number of target in build file
-        let l:line_number = system('grep -n name.\*"' . l:target . '\"" ' . l:build_file . ' | cut -d: -f1 | head -n1')
-        execute 'edit ' . l:build_file
-        " if line number is not empty, go to line number
-        if len(l:line_number) > 0
-            " strip newline from line number
-            let l:line_number = substitute(l:line_number, '\n', '', '')
-            execute 'normal ' . l:line_number . 'G'
-        else
-            echo 'Could not find target in build file'
-        endif
+    let l:build_file = substitute(l:line, "//", "", "")
+    " get the target name
+    let l:target = substitute(l:build_file, '.*:', '', '')
+    let l:target = StripTagFromInternalTarget(l:target)
+    let l:build_file = substitute(l:build_file, ':.*', '/BUILD', '')
+    " find line number of target in build file
+    let l:command = 'grep -n "name.*\"' . l:target . '\"" ' . l:build_file . ' | cut -d: -f1 | head -n1'
+    let l:line_number = system(l:command)
+    execute 'edit ' . l:build_file
+    " if line number is not empty, go to line number
+    if len(l:line_number) > 0
+        " strip newline from line number
+        let l:line_number = substitute(l:line_number, '\n', '', '')
+        execute 'normal ' . l:line_number . 'G'
     else
-        " check for build labels of the form //foo/bar
-        let l:match = matchlist(l:line, '\/\/[A-z0-9\/_-]\+')
-        if len(l:match) > 0
-            " get the last part of the build label
-            let l:target = substitute(l:match[0], '.*\/', '', '')
-            return GoToBuildFile(l:match[0] . ':' . l:target)
-        echo 'No build label found'
-        else
-            let l:match = matchlist(l:line, ':[A-z0-9\/_-]\+')
-            if len(l:match) > 0
-                let l:path = expand('%:p:h')
-                let l:reporoot = GetPleaseRepoRoot()
-                let l:path = substitute(l:path, l:reporoot, '', '')
-                let l:target = '/' . l:path . l:match[0]
-                return GoToBuildFile(l:target)
-            else
-                echo 'No build label found'
-            endif
-        endif
+        echo 'Could not find target in build file'
     endif
 endfunction
 
