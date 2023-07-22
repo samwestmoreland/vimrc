@@ -601,6 +601,18 @@ require('lualine').setup {
 }
 EOF
 
+lua << EOF
+require('nvim-treesitter.configs').setup({
+  highlight = {
+    enable = true,
+    additional_filetypes = {
+        BUILD = "python",
+        build_defs = "python",
+    },
+  },
+})
+EOF
+
 augroup transparent_signs
   au!
   autocmd ColorScheme * highlight SignColumn guibg=NONE
@@ -615,7 +627,7 @@ function! s:go_guru_scope_from_git_root()
   return substitute(gitroot, pattern, '', '') . '/... -vendor/'
 endfunction
 
-au FileType go silent exe "GoGuruScope " . s:go_guru_scope_from_git_root()
+" au FileType go silent exe "GoGuruScope " . s:go_guru_scope_from_git_root()
 
 autocmd FileType .vim, .py, .go, .build_defs EnableStripWhitespaceOnSave
 
