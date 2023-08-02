@@ -89,6 +89,7 @@ nnoremap <leader>N :lprev<CR>
 nnoremap gc :GoCallers<CR>
 nnoremap gr :GoReferrers<CR>
 nnoremap gt :GoDefType<CR>
+nnoremap gl :GoLint<CR>
 
 nnoremap <leader>ev :e ~/.config/nvim/init.vim <CR>
 nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
@@ -124,7 +125,7 @@ nnoremap Q :call PleaseAction('query print', '')<CR>
 nnoremap gb :call GoToBuildFile('')<CR>
 
 " Get build label under cursor
-nnoremap gl :call GetBuildLabelUnderCursor()<CR>
+nnoremap <leader>pgl :call GetBuildLabelUnderCursor()<CR>
 
 nnoremap <leader>g :Git<space>
 
