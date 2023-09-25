@@ -719,3 +719,8 @@ function! StripTagFromInternalTarget(target)
 endfunction
 
 command! -nargs=1 Silent execute ':silent !'.<q-args> | redraw!
+
+if executable("rg")
+  set grepprg=rg\ --vimgrep\ --smart-case\ --hidden
+  set grepformat=%f:%l:%c:%m
+endif
