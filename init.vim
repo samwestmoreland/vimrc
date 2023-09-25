@@ -23,6 +23,7 @@ Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'sharkdp/fd'
 Plug 'ChrisPenner/vim-committed'
+Plug 'kdheepak/lazygit.nvim'
 call plug#end()
 
 set expandtab
@@ -126,7 +127,12 @@ nnoremap gb :call GoToBuildFile('')<CR>
 " Get build label under cursor
 nnoremap gl :call GetBuildLabelUnderCursor()<CR>
 
-nnoremap <leader>g :Git<space>
+" Open LazyGit
+nnoremap <C-q> :LazyGit<CR>
+tnoremap <C-q> <C-\><C-n>:LazyGit<CR>
+
+" Git blame
+nnoremap <leader>gb :Git blame<CR>
 
 " Copy the name of the current file to the clipboard
 nnoremap <C-g> :call GetFilename()<CR>
