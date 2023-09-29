@@ -126,7 +126,7 @@ nnoremap Q :call PleaseAction('query print', '')<CR>
 nnoremap gb :call GoToBuildFile('')<CR>
 
 " Get build label under cursor
-nnoremap <leader>pgl :call GetBuildLabelUnderCursor()<CR>
+nnoremap <leader>gl :call GetBuildLabelUnderCursor()<CR>
 
 " Open LazyGit
 nnoremap <C-q> :LazyGit<CR>
