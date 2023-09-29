@@ -156,6 +156,7 @@ nmap <silent> gr <Plug>(coc-references)
 
 " Configure telescope
 nnoremap <C-P> :Telescope find_files<CR>
+tnoremap <C-P> <C-\><C-n>:Telescope find_files<CR>
 nnoremap <leader><leader> :Telescope live_grep<CR>
 nnoremap K :Telescope grep_string<CR>
 nnoremap <leader>fc :lua telescope_live_grep_under_cursor()<CR>
