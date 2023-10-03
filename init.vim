@@ -91,7 +91,6 @@ nnoremap <leader>N :lprev<CR>
 nnoremap gc :GoCallers<CR>
 nnoremap gr :GoReferrers<CR>
 nnoremap gt :GoDefType<CR>
-nnoremap gl :GoLint<CR>
 
 nnoremap <leader>ev :e ~/.config/nvim/init.vim <CR>
 nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
