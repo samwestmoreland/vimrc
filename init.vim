@@ -24,6 +24,7 @@ Plug 'rcarriga/nvim-dap-ui'
 Plug 'sharkdp/fd'
 Plug 'ChrisPenner/vim-committed'
 Plug 'kdheepak/lazygit.nvim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug'] }
 call plug#end()
 
 set expandtab
