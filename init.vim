@@ -479,7 +479,11 @@ function! NerdTreeOpen()
     " if there is a file open in the current buffer
     if expand('%') != ''
         " open the file in the current buffer in the nerdtree
-        execute 'NERDTreeFind'
+        try
+            execute 'NERDTreeFind'
+        catch
+            execute 'NERDTree'
+        endtry
     else
         " otherwise, open the current directory in the nerdtree
         execute 'NERDTree'
