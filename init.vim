@@ -473,6 +473,7 @@ nnoremap U :redo<CR>
 
 " Nerdtree mappings
 nnoremap <C-n> :call NerdTreeOpen()<CR>
+tnoremap <C-n> <C-\><C-n>:call NerdTreeOpen()<CR>
 
 function! NerdTreeOpen()
     " if there is a file open in the current buffer
