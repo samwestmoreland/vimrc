@@ -2,7 +2,6 @@ call plug#begin()
 " Plug 'mileszs/ack.vim'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'preservim/nerdtree'
-Plug 'github/copilot.vim'
 " Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 " Plug 'junegunn/fzf.vim'
 Plug 'nvim-lualine/lualine.nvim'
@@ -97,9 +96,6 @@ nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 
 nnoremap <leader>dd :windo diffthis<CR>
 nnoremap <leader>do :windo diffoff<CR>
-
-nnoremap <leader>ce :Copilot enable<CR> :redraw<CR>
-nnoremap <leader>cd :Copilot disable<CR> :redraw<CR>
 
 nnoremap <leader>a :Silent arc lint %<CR>
 
