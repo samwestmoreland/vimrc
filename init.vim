@@ -42,6 +42,8 @@ let mapleader = ','
 
 nnoremap <C-LeftMouse> :echom 'Follow hyperlink'<CR>
 
+nnoremap <C-l> :call GetPhabricatorLink()<CR>
+
 inoremap kj <ESC>
 nnoremap <leader>w :w<CR>
 " call quit and source the vimrc
@@ -220,6 +222,25 @@ function! GetPleaseRepoRoot()
         let l:dir = fnamemodify(l:dir, ':h')
     endwhile
     return ''
+endfunction
+
+function! GetPhabricatorLink()
+    let l:line = line('.')
+    let l:root = GetPleaseRepoRoot()
+    if l:root == ''
+        echo 'Not in a Please repo'
+        return
+    endif
+    let l:file = expand('%:p')
+    let l:file = substitute(l:file, l:root, '', '')
+    let l:file = substitute(l:file, '^/', '', '')
+    let l:branch = system('git rev-parse --abbrev-ref HEAD')
+    let l:branch = substitute(l:branch, '\n', '', '')
+    let l:branch = substitute(l:branch, '/', '%2F', '')
+    let l:branch = substitute(l:branch, ' ', '%20', '')
+
+    let l:link = 'https://phabricator.iap.tmachine.io/diffusion/CORE/browse/' . l:branch . '/' . l:file . '$' . l:line
+    echo l:link
 endfunction
 
 function! GoToDefinition()
