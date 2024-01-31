@@ -273,7 +273,7 @@ function! GetBuildLabelUnderCursor()
     " //build_defs:all",
     " i.e. make sure we don't match spaces or brackets or quotes or commas
 
-    let l:pattern = '\v(\/\/([a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+(#[a-zA-Z0-9_-]*)?)'
+    let l:pattern = '\v(\/\/([a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+:[a-zA-Z0-9._-]+(#[a-zA-Z0-9_-]*)?)'
     let l:match = matchstr(l:line, l:pattern, l:slashpos[1]-1)
     if l:match != ''
         " strip any trailing colons
