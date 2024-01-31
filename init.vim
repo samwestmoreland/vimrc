@@ -91,6 +91,9 @@ nnoremap gc :GoCallers<CR>
 nnoremap gr :GoReferrers<CR>
 nnoremap gt :GoDefType<CR>
 
+" Reload current buffer
+nnoremap <leader>r :e<CR>
+
 nnoremap <leader>ev :e ~/.config/nvim/init.vim <CR>
 nnoremap <leader>sv :so ~/.config/nvim/init.vim <CR>
 
